@@ -1,0 +1,138 @@
+@charset "UTF-8";
+
+*{
+	margin: 0;
+	padding: 0;
+}
+a {
+	text-decoration: none;
+}
+li {
+	list-style: none;
+}
+#foot_wrap {
+	width: 100%;
+    margin: 0 auto;
+    background-color: #434343;
+    padding: 30px 0;
+}
+#foot_content {
+	width: 1000px;
+	margin: 0 auto;
+	height: 155px;
+}
+
+/* footer 왼쪽 컨텐츠 */
+#foot_left {
+	float:left;
+}
+#foot_logo_img {
+	width: 210px;
+    margin: 20px 0;
+}
+#foot_link {
+	overflow: hidden;
+    margin-left: -6px;
+    height: 19px;
+    line-height: 19px;
+    margin-bottom: 15px;
+}
+#foot_link ul {
+	
+}
+#foot_link ul li {
+	float: left;
+    width: 70px;
+    border-right: 1px solid #9B9A9A;
+    text-align: center;
+    font-size: 13px;
+}
+#foot_link ul li:last-child {
+	width: 95px;
+}
+#foot_link a {
+	color: #9B9A9A;
+}
+#foot_addr {
+	font-size: 13px;
+    color: #9B9A9A;
+}
+
+
+/* footer 오른쪽 컨텐츠 */
+#foot_right {
+	font-size: 13px;
+    color: #9B9A9A;
+}
+
+#foot_tel {
+	float: right;
+    font-size: 25px;
+    margin-top: 25px;
+}
+#foot_tel_num {
+	color: white;
+}
+#foot_copy {
+	float: right;
+    width: 452px;
+    margin-top: 75px;	
+}
+#foot_copy span {
+	float: right;
+}
+
+/* 관리자 모달 */
+#login #submit {
+	border: none;
+    background-color: #434343;
+    width: 85px;
+    height: 83px;
+    cursor: pointer;
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+}
+/* 관리자로그인버튼 */
+#adminBtn{
+	color:#9B9A9A;
+	cursor: pointer;
+}
+
+
+
+/* The Modal (background) */
+        .adminModal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+    
+        /* Modal Content/Box */
+        .adminModal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 30%; /* Could be more or less, depending on screen size */                          
+        }
+        /* The Close Button */
+        .adminClose {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .adminClose:hover,
+        .adminClose:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 불러올 Dto별명 -->
+<mapper namespace="Customer">
+	<resultMap type="Customer" id="CustomerResult"> <!--  -->
+		<result property="cusId" column="cusId" />
+		<result property="cusPw" column="cusPw" />
+		<result property="cusName" column="cusName" />
+		<result property="cusNick" column="cusNick" />
+		<result property="cusBirth" column="cusBirth" />
+		<result property="cusPhone" column="cusPhone" />
+		<result property="cusEmail" column="cusEmail" />
+		<result property="cusAddress" column="cusAddress" />
+		<result property="cusGender" column="cusGender" />
+		<result property="cusPhoto" column="cusPhoto" />
+		<result property="cusSum" column="cusSum" />
+		<result property="cusPoint" column="cusPoint" />
+		<result property="cusRdate" column="cusRdate" />
+		<result property="cusBlack" column="cusBlack" />
+		<result property="cusGrade" column="cusGrade" />
+		<result property="cusDiscount" column="cusDiscount" />
+	</resultMap>
+	<!-- 사용자로그인체크 + 고객등급확인 -->
+	<select id="customerlogin" parameterType="Customer" resultMap="CustomerResult">
+		<!-- SELECT * FROM CUSTOMER WHERE cusId=#{cusId} AND cusPw=#{cusPw} -->
+		SELECT c.*,cusGrade,cusDiscount FROM CUS_GRADE G, CUSTOMER C WHERE C.cusSum BETWEEN G.cusLow AND G.cusHigh AND cusId=#{cusId} AND cusPw=#{cusPw}
+	</select>
+
+</mapper>
+    
+    

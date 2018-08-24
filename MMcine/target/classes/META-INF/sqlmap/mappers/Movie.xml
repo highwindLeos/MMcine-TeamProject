@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="Movie">
+	<resultMap type="Movie" id="MovieResult">
+		<result property="movieCode" column="movieCode"/>
+		<result property="movieName" column="movieName"/>
+		<result property="movieGener" column="movieGener"/>
+		<result property="movieOpenDate" column="movieOpenDate"/>
+		<result property="movieAccrue" column="movieAccrue"/>
+		<result property="movieSummary" column="movieSummary"/>
+		<result property="movieImg1" column="movieImg1"/>
+		<result property="movieImg2" column="movieImg2"/>
+		<result property="movieImg3" column="movieImg3"/>
+		<result property="movieImg4" column="movieImg4"/>
+		<result property="movieImg5" column="movieImg5"/>
+		<result property="movieVideo" column="movieVideo"/>
+		
+		<result property="mScore" column="mScore"/>
+		<result property="mRecomm" column="mRecomm"/>
+		
+		<result property="rCode" column="rCode"/>
+		<result property="rTitle" column="rTitle"/>
+		<result property="rContent" column="rContent"/>
+		<result property="rRdate" column="rRdate"/>
+		
+		<result property="startRow" column="startRow"/>
+		<result property="endRow" column="endRow"/>
+	</resultMap>
+	
+	<!-- Movie : 박스 오피스  PAGING처리  -->
+	<select id="movieListPaging" parameterType="Movie" resultMap="MovieResult">
+		SELECT * FROM
+		(SELECT ROWNUM RN, A.* FROM (SELECT * FROM MOVIE ORDER BY movieAccrue DESC) A)
+		    WHERE RN BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	<!-- Movie : 박스 오피스  최신 리스트 4개 [메인] -->
+	<select id="movieListNewFour" resultMap="MovieResult">
+		SELECT * FROM
+		(SELECT ROWNUM RN, A.* FROM (SELECT * FROM MOVIE ORDER BY movieAccrue DESC) A)
+		    WHERE RN BETWEEN 1 AND 4
+	</select>
+	
+	<!-- Movie : 최신개봉일순  PAGING처리  -->
+	<select id="movieOpen" parameterType="Movie" resultMap="MovieResult">
+		SELECT * FROM
+		(SELECT ROWNUM RN, A.* FROM (SELECT * FROM MOVIE ORDER BY movieOpenDate DESC) A)
+		    WHERE RN BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	<!-- Movie : 상영 예정작  PAGING처리  -->
+	<select id="movieExpected" parameterType="Movie" resultMap="MovieResult">
+		SELECT * FROM
+		(SELECT ROWNUM RN, A.* FROM (SELECT * FROM MOVIE ORDER BY movieOpenDate DESC) A)
+		    WHERE RN BETWEEN 1 AND 10 
+		    AND movieOpenDate > SYSDATE
+	</select>
+	
+	<!-- Movie : 상세보기  -->
+	<select id="getMovieDetail" parameterType="String" resultMap="MovieResult">
+		SELECT MOVIE.*, (SELECT SUM(MSCORE) MSCORE FROM MOVIE_GRADE 
+		WHERE MOVIECODE = #{movieCode} GROUP BY MOVIECODE) MSCORE
+		FROM MOVIE 
+		WHERE MOVIECODE = #{movieCode}
+	</select>
+	
+	<!-- Movie : 상세보기의 코멘트 리스트  -->
+	<select id="getMovieComant" parameterType="Movie" resultMap="MovieResult">
+		SELECT * FROM
+		(SELECT ROWNUM RN, A.* FROM (SELECT R.*, C.CUSPHOTO FROM  CUSTOMER C, REVIEW R WHERE C.CUSID = R.CUSID  AND MOVIECODE = #{movieCode, jdbcType=VARCHAR} ORDER BY RRDATE DESC) A)
+		WHERE RN BETWEEN #{startRow, jdbcType=VARCHAR} AND #{endRow, jdbcType=VARCHAR}
+	</select>
+	
+	<!-- Movie : 투표 수 구하기  -->
+	<select id="movieVoteCnt" parameterType="String" resultType="int">
+		SELECT COUNT(*) VOTECNT
+		FROM MOVIE_GRADE WHERE MOVIECODE = #{movieCode}
+	</select>
+	
+	<!-- 특정영화 보고싶어요 갯수구하기 -->
+	<select id="getRecommCnt" parameterType="Movie" resultType="int">
+		SELECT NVL(SUM(MRECOMM), 0) MRECOMM
+		FROM MOVIE_GRADE 
+		WHERE MOVIECODE = #{movieCode}
+	</select>
+	
+	<!-- 특정영화 보고싶어요 여부 -->
+	<select id="getMovieRecomm" parameterType="Movie" resultType="int">
+		SELECT NVL(MAX(MRECOMM), 0) MRECOMM
+		FROM MOVIE_GRADE 
+		WHERE MOVIECODE = #{movieCode} AND CUSID = #{cusId}
+	</select>
+	
+	<!-- 특정영화 보고싶어요 하기 -->
+	<insert id="writeRecomm" parameterType="Movie">
+		INSERT INTO MOVIE_GRADE (MGNUM, MSCORE, MRECOMM, CUSID, MOVIECODE) VALUES
+		(SEQ_MOVIE_GRADE.NEXTVAL, 0, 1, #{cusId}, #{movieCode})
+	</insert>
+	
+	<!-- 특정영화 보고싶어요 하기 -->
+	<update id="updateRecomm" parameterType="Movie">
+		UPDATE MOVIE_GRADE SET
+		MRECOMM = 0
+		WHERE CUSID = #{cusId} AND MOVIECODE = #{movieCode}
+	</update>
+	
+	<!-- MOVIE_GRADE : 영화 평가점 입력  -->
+	<insert id="writeMovieGrade" parameterType="Movie">
+		INSERT INTO MOVIE_GRADE VALUES (SEQ_MOVIE_GRADE.NEXTVAL, #{mScore}, #{mRecomm}, #{cusId}, #{movieCode})
+	</insert>
+	
+	<!-- MOVIE_GRADE : 영화 코멘트 입력  -->
+	<insert id="writeMovieComant" parameterType="Movie">
+		INSERT INTO REVIEW VALUES (SEQ_REVIEW.NEXTVAL, #{rTitle}, #{rContent}, SYSDATE, #{cusId}, #{movieCode})
+	</insert>
+	
+	<!-- MOVIE : 영화 입력  -->
+	<insert id="writeMovie" parameterType="Movie">
+		INSERT INTO MOVIE 
+		VALUES (#{movieCode} || SEQ_MOVIE.NEXTVAL, #{movieName},  #{movieGener}, #{movieOpenDate}, #{movieAccrue}, #{movieSummary}, #{movieImg1}, #{movieImg2}, #{movieImg3}, #{movieImg4}, #{movieImg5}, #{movieVideo})
+	</insert>
+	
+	<!-- MOVIE : 영화 수정  -->
+	<update id="modifyMovie" parameterType="Movie">
+		UPDATE MOVIE SET 
+	        MOVIENAME = #{movieName},
+	        MOVIEGENER  = #{movieGener},
+	        MOVIEOPENDATE  = #{movieOpenDate},
+	        MOVIESUMMARY  = #{movieSummary},
+	        MOVIEIMG1  = #{movieImg1}, 
+	        MOVIEIMG2  = #{movieImg2},
+	        MOVIEIMG3  = #{movieImg3},
+	        MOVIEIMG4  = #{movieImg4},
+	        MOVIEIMG5  = #{movieImg5},
+	        MOVIEVIDEO  = #{movieVideo}
+	    WHERE MOVIECODE = #{movieCode}
+	</update>
+
+	<!-- 영화  삭제 하기 -->
+	<delete id="deleteMovie" parameterType="Movie">
+		DELETE FROM MOVIE WHERE MOVIECODE = #{movieCode}
+	</delete>
+	
+	<!-- 영화 코멘트 삭제 하기 -->
+	<delete id="deleteComant" parameterType="String">
+		DELETE FROM REVIEW WHERE RCODE = #{rCode}
+	</delete>
+	
+	<!-- 페이징 때 사용하는 모든 갯수 구하기 -->
+	<select id="cntMovie" resultType="int">
+		SELECT COUNT(*) FROM MOVIE
+	</select>
+	
+	<!-- 페이징 때 사용하는 REVIEW 수 구하기 -->
+	<select id="cntReview" parameterType="String" resultType="int">
+		SELECT COUNT(*) FROM REVIEW WHERE MOVIECODE = #{MOVIECODE}
+	</select>
+	
+</mapper>
